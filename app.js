@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-const router = require('./api/user');
-
+const router = require('./api/userRouter');
+const db = require('./models');
 
 
 app.use(express.json());

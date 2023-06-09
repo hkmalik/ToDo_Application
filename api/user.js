@@ -1,9 +1,9 @@
 const { createUser, getUsers, login,create_Task, getTask,getTaskById,updateTasks,deleteTask,getFilterStatus,getSortedByName,getSortedById ,deleteUsers } = require('../contollers/user');
-
+const {create}=require('../contollers/usersSequalize');
 const router = require("express").Router();
 const { checkToken } = require('../tokenValidation');
 
-router.post('/save', createUser);
+router.post('/create', create);
 router.get('/get', checkToken, getUsers);
 router.delete('/deleteuser', checkToken, deleteUsers);
 router.post('/tasks',checkToken,create_Task);
