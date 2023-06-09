@@ -4,23 +4,25 @@ const helper = require('../services/helper');
 const users = db.models.Users;
 const tasks = db.models.tasks;
 //1.create users
+function emailvalid(email){
+    let emailFormat = /^[a-zA-Z0-9_.+-]+@[a-zA-Z]+\.[a-zA-Z]+$/;
+    return email.match(emailFormat) ? true : false;
+}
+
 const createUsers = async (req, res) => {
-
-    let name = req.body.name;
-    let username = req.body.username;
-    let email = req.body.email;
-    let password = req.body.password;
-    let isactive_key = req.body.isactive_key
+    let {name, username, email, password, isactive_key} = req.body;
     console.log(name, email, password, isactive_key)
-
     try {
-        console.log("hello")
-        let data = await helper.createuser(name, username, email, password, isactive_key)
-        res.status(200).send(data)
+        if(emailvalid(email)){
+            let data = await helper.createuser(name, username, email, password, isactive_key)
+            return res.status(200).json(data)
+        } else {
+            // return res.status(422).send('Email is invalid');
+            throw new Error('Email is invalid')
+        }
     }
     catch (err) {
-        res.status(500).send(err)
-        console.log("hi")
+        return res.status(500).send(err.message)
     }
 }
 const login = async (req, res) => {
