@@ -31,15 +31,15 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: 0
             },
             //createdAt: false,
-          //updatedAt: false,
+            //updatedAt: false,
         },
         {
             freezeTableName: true
         });
-          return users
-   
-  
-      createtasks.belongsTo(users);
+    return users
 
-  
+
+    createtasks.belongsTo(users);
+
+
 }
