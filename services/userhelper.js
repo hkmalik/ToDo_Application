@@ -1,7 +1,6 @@
 const { QueryTypes } = require('sequelize');
 const db = require('../models');
 const { hashedpassword } = require('./passwordencrption')
-const tasks = db.models.tasks;
 const users = db.models.Users;
 module.exports = {
     createuser: (name, username, email, password, isactive_key) => {
@@ -16,7 +15,7 @@ module.exports = {
                 console.log("he5")
 
                 const data = await users.sequelize.query(
-                    'INSERT INTO users (name, username, email, password, isactive_key) VALUES (?, ?, ?, ?, ?)',
+                    'INSERT INTO users (name, username, email, password, isActiveKey) VALUES (?, ?, ?, ?, ?)',
                     {
                         type: QueryTypes.INSERT,
                         replacements: [name, username, email, passwordData, isactive_key],
@@ -38,7 +37,7 @@ module.exports = {
     getuser: () => {
         return new Promise((resolve, reject) => {
             console.log("hello");
-            users.sequelize.query('SELECT * FROM users', {
+            users.sequelize.query('SELECT * FROM users JOIN role  ON users.id=role.roleId', {
                 type: QueryTypes.SELECT
             }).then(data => {
                 console.log(data);
@@ -56,14 +55,67 @@ module.exports = {
         //    })
         //});
     },
-    login_user: (useremail) => {
+    updateuser: (body, id) => {
 
-
+        console.log("updating the user...");
         return new Promise((resolve, reject) => {
+            //   console.log("updatetask2")
+            users.sequelize.query(`UPDATE users SET name =?, username =?,email =? WHERE id=${id}`, {
+                type: QueryTypes.UPDATE,
+                replacements: [body.name, body.username, body.email]
+            }).then(data => {
+                console.log(data)
+                resolve(data);
+            }).catch(err => {
+                reject(err);
+            })
+        })
 
+    },
+    updateUserPassword: (useremail) => {
+        console.log("update password")
+        return new Promise((resolve, reject) => {
+            console.log("update password 2")
             users.sequelize.query('SELECT * FROM users WHERE email=:email', {
                 type: QueryTypes.SELECT,
                 replacements: { email: useremail }
+            }).
+                then(data => {
+                    //console.log(data[0].password)
+                    resolve(data)
+                }).catch(err => {
+                    reject(err);
+                })
+        })
+    },
+    updateUserPassword2: (email, userpassword) => {
+        console.log("update password 2")
+        return new Promise(async(resolve, reject) => {
+            try {
+              
+                let passwordData = await hashedpassword(userpassword);
+                console.log(passwordData)
+                console.log("update password 2")
+               const data= await users.sequelize.query(
+                `UPDATE users SET password=? WHERE email=? `, {
+                    type: QueryTypes.UPDATE,
+                    replacements: [passwordData, email]
+                })
+                resolve(data)
+            }
+            catch (err) {
+                reject(err);
+            }
+        })
+    },
+    login_user: (useremail,role) => {
+
+            
+        return new Promise((resolve, reject) => {
+
+            users.sequelize.query('SELECT * FROM users WHERE email=?,role=?', {
+                type: QueryTypes.SELECT,
+                replacements: [useremail, role]
             })
                 /*             users.findAll({
                                 where: {
@@ -81,5 +133,75 @@ module.exports = {
 
         });
     },
+    searchemail:(email) => {
+         return new Promise(async(resolve,reject)=>{
+            console.log("helo2")
+            await users.sequelize.query( `SELECT * FROM users WHERE email=? `,{
+
+                type:QueryTypes.SELECT,
+                replacements:[email]
+
+            }).then(data => {
+                 
+                 
+                    resolve(data);
+                }).catch(err => {
+                    console.log(err);
+                    reject(err);
+                })
+         })
+    },
+    inserttoken:(useremail,token)=>{
+        return new Promise(async(resolve,reject)=>{
+            console.log("helo4")
+            console.log(useremail)
+        users.sequelize.query("update users SET  token=?  WHERE email= ? ",{
+            type:QueryTypes.INSERT,
+            replacements:[token,useremail]
+
+        }).then(data => {
+         resolve(data)   
+        }).catch(err => {
+         reject(err);   
+        })
+
+    })
+
+    },
+    checktoken:(token)=>{
+        console.log("Resetting password1")
+        //console.log(token)
+        return new Promise(async(resolve,reject)=>{
+            console.log("Resetting password2")
+            users.sequelize.query("SELECT *  FROM users WHERE token=?",{
+                type:QueryTypes.SELECT,
+                replacements:[token]
+            }).then(data => {
+             resolve(data)   
+            }).catch(err=>{
+
+                reject(err);
+            })
+
+        })
+
+    },
+    deletetoken:(token)=>{
+
+        console.log("deleting the token")
+        return new Promise(async(resolve,reject)=>{
+            await users.sequelize.query("UPDATE users SET token= 0 WHERE token=?",{
+                type:QueryTypes.UPDATE,
+                replacements:[token]
+            
+
+        }).then(data => {
+         resolve(data)   
+        }).catch(err=>{
+            reject(err);   
+        })
+    })
+    }
+   
 
 }

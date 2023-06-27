@@ -6,13 +6,17 @@ module.exports = {
 
   createTasks :async (req, res) => {
  
-
+console.log('create tasks');
     let user_id = req.body.user_id
-    let task_name = req.body.task_name
+    let task_name = req.body.taskName
     let description = req.body.description
+    let assign=req.body.assignedid
+    let deadline=req.body.deadline
     let status = req.body.status
 
     try {
+         
+console.log('create tasks1');
         const data = await helper.createtask(user_id, task_name, description, status)
         res.status(200).send(data);
 
@@ -25,7 +29,8 @@ module.exports = {
 
     try {
         const data = await helper.gettask()
-        res.status(200).json(data);
+        console.log(data)
+        res.status(200).send(data);
     } catch (err) {
         res.status(500).send(err)
     }
@@ -102,5 +107,21 @@ getTaskSortedByUserId : async (req, res) => {
     catch (err) {
         res.status(500).res.send(err);
     }
+    },
+
+    updateTaskStatus:async(req,res)=>{
+        try{
+            let id =req.body.id;
+            let taskStatus=req.body.status
+
+            const data=await helper.updateStatus(id,taskStatus)
+            res.status(200).json(data); 
+        }
+        catch(err){
+            res.status(500).res.send(err);
+        }
+
+
+
     }
 }

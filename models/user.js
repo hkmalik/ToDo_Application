@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 type: DataTypes.UUID
             },
+        /*     Type:{
+
+                type:DataTypes.ENUM("Admin","user"),
+            }, */
             isactive_key:
             {
                 type: DataTypes.TINYINT,
@@ -38,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         });
     return users
 
-
+    
     createtasks.belongsTo(users);
 
 

@@ -2,14 +2,19 @@ const { QueryTypes } = require('sequelize');
 const db = require('../models');
 const tasks = db.models.tasks;
 module.exports = {
-    createtask: (user_id, task_name, description, status) => {
+    createtask: (user_id, task_name, description, status,assign,deadline) => {
+                 
+console.log('create tasks3');
         return new Promise((resolve, reject) => {
-
-            tasks.sequelize.query('INSERT INTO tasks (user_id,task_name, description, status) VALUES (?,?,?,?)',{
+            console.log(assign)
+            console.log('create tasks4');
+            tasks.sequelize.query('INSERT INTO tasks (user_id,taskName, description,status,assignedid,deadline) VALUES (?,?,?,?,?,?)',{
                 type:QueryTypes.INSERT,
-                replacements:[user_id,task_name,description,status]
+                replacements:[user_id,task_name,description,status,assign,deadline]
              }).then((result) => {
                 
+                         
+console.log('create tasks5');
                     resolve(result);       
         }).catch((err) => {
             reject(err)
@@ -28,10 +33,11 @@ module.exports = {
     },
     gettask: () => {
         return new Promise((resolve, reject) => {
-
+                console.log('getTask')
             tasks.sequelize.query("SELECT * FROM tasks",{
                 type: QueryTypes.SELECT
             }).then(data => {
+                console.log("data",data);
                     resolve(data);
                 })
                 .catch(err => {
@@ -44,7 +50,7 @@ module.exports = {
 
         return new Promise((resolve, reject) => {
 
-            tasks.sequelize.query("SELECT * FROM tasks where user_id =:id",{
+            tasks.sequelize.query("SELECT * FROM tasks  where user_id =:id OR assignedid=:id",{
                 type:QueryTypes.SELECT,
                 replacements:{id:id}
             })
@@ -146,4 +152,23 @@ module.exports = {
         });
 
     },
+    updateStatus:(id,status)=>{
+        console.log("entering the status")
+        
+        return new Promise((resolve, reject) => {
+            console.log("updating status")
+
+            tasks.sequelize.query( `UPDATE tasks SET status=:status WHERE id=:id`,{
+                type:QueryTypes.UPDATE,
+                replacements:{status:status, id:id}
+            }).then((data) => {
+                
+             resolve(data);   
+            }).catch((err) => {
+                
+             reject(err);   
+            })
+
+        })
+    }
 }

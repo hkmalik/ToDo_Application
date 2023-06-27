@@ -1,4 +1,4 @@
-const {users}=require('./user');
+
 
 module.exports  =(sequelize,DataTypes) =>  {
 
@@ -25,9 +25,15 @@ module.exports  =(sequelize,DataTypes) =>  {
         },
         status:{
             type:DataTypes.ENUM("todo","inprogress","complete","canceled"),
-        }
+        },
+         assignedid:{
 
-        
+            type:DataTypes.INTEGER,
+
+         },
+         deadline:{
+            type:DataTypes.DATE
+         }
     })
       return createtasks;
 }
