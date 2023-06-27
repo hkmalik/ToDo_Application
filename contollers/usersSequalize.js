@@ -12,8 +12,8 @@ const{EMAIL,PASSWORD}= require('../env')// for gmail id
 const url=require('url');
 const { error } = require('console');
 
-const  cron=require('node-cron');
-const shell=require('shelljs')
+const  cron =require('node-cron');
+//const shell=require('shelljs')
 const users = db.models.Users;
 const tasks = db.models.tasks;
 //1.create users
@@ -379,15 +379,38 @@ const mailer=async(req,res)=>{
 
 
 }*/
-const deadlinereminder = async(req,res)=>{
+ const deadlinereminder = async(req,res)=>{
+    let date=new Date();
+    let currentdate=date.toDateString()
+    console.log(currentdate)
+    console.log("REMINDER ENTERING THE DEADLINE NEARING")
+    
+    try{
+        const data = await helper.checkdeadeline()
+        for(let i=0; i<data.length; i++)
+        {
+            console.log("hi")
+            const deadlinedate[i]=data[i].// working on the subject reagrding this matter 
+        }
+        console.log(deadlinedate)
+        res.status(200).send(data)
+        
+    }catch(err){
+        res.status(500).send(err)
+    }
+/*cron.schedule('* * * * * *',() => {
+    
+    
+    console.log('seconds',)
+});*/
 
-    cron.schedule("******",function(){
+    /*console.log("entering the scheduler")
+    cron.schedule("******",()=>{
         console.log("nod script working")
-        res.status(200).send("starteed")
-    })
-    res.status(200).send("starteed")
+        //res.status(200).send("starteed")
+    })*/
+   // res.status(200).send("starteed")
 }
-
 
 
 

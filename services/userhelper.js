@@ -1,7 +1,9 @@
 const { QueryTypes } = require('sequelize');
 const db = require('../models');
-const { hashedpassword } = require('./passwordencrption')
+const { hashedpassword } = require('./passwordencrption');
+const database = require('../config/database');
 const users = db.models.Users;
+const task=db.models.tasks
 module.exports = {
     createuser: (name, username, email, password, isactive_key) => {
         console.log("he2")
@@ -201,7 +203,20 @@ module.exports = {
             reject(err);   
         })
     })
-    }
+    },
    
+    checkdeadeline:()=>{
+        
+         return new Promise(async(resolve,reject)=>{
+            task.sequelize.query("SELECT deadline FROM tasks WHERE activeflag=1",{
+                type:QueryTypes.SELECT,
+            }).then(data => {
+                
+             resolve(data)   
+            }).catch(err=>{
+              reject(err);      
+         })
+         })
 
+    }
 }
