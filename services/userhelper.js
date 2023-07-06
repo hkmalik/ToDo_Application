@@ -208,7 +208,7 @@ module.exports = {
     checkdeadeline:()=>{
         
          return new Promise(async(resolve,reject)=>{
-            task.sequelize.query("SELECT deadline FROM tasks WHERE activeflag=1",{
+            task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE activeflag=1",{
                 type:QueryTypes.SELECT,
             }).then(data => {
                 
@@ -217,6 +217,26 @@ module.exports = {
               reject(err);      
          })
          })
+
+    },
+    checkdeadlinedate:(id,date)=>{
+        console.log("hjhd")
+        console.log(id)
+        console.log(date)
+        return new Promise(async(resolve,reject)=>{
+            task.sequelize.query(`SELECT u.name,u.email,t.taskName,t.description,t.deadline FROM users u JOIN tasks t on u.id=t.assignedid WHERE t.assignedid =? AND t.deadline=?`,{
+                type:QueryTypes.SELECT,
+                replacements:[id ,date]
+
+            } ).then(data => {
+                //console.log(data)
+             resolve(data)   
+            }).catch(err=>{
+             reject(err)   
+            })
+
+
+        })
 
     }
 }

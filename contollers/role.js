@@ -68,6 +68,53 @@ module.exports =
 
         }
     },
+   gettaskreports:async(req,res) => {
+    let userid=req.body.user_id
+    let findid=req.body.id
+    console.log(userid)
+    let role
+    let role2
+    try{
+
+    
+    const data=await helper.assignedtask(userid)
+    console.log("ddata1")
+    role=data[0].rolename
+    console.log("ddata2")
+    const data2=await helper.assignedtask(findid)
+    console.log("ddata3")
+    let difference
+    role2=data2[0].rolename
+    const num1=[]
+    if(role==='admin')
+    {
+        if(role2==='user'){
+        const data=await helper2.gettaskbyassignedid(userid,findid)
+        for(let i=0;i<data.length;i++)
+        {
+            difference =data[i].updatedAt -data[i].createdAt
+            let num =difference/ (1000 * 60 * 60 * 24)
+             num1[i]=Math.floor(num)
+            console.log(num1[i],"days have passed")
+          
+        }
+        res.status(200).json({
+          info:data,
+          msg:"days have passed",
+          result:num1,
+        })
+        }else{
+            res.status(500).send("we can't check tasks of other admins")
+        }
+    }else{
+        res.status(500).send("you can't get task reports as users")
+    }
+    }catch(err)
+    {
+        res.status(500).send(err)
+    }
+
+    },
     gettaskdetails:async(req,res)=>{
         
         let userid=req.body.id// change if it is not right
@@ -126,6 +173,46 @@ module.exports =
 
 
  },
+ averagetaskreport:async(req,res)=>{
 
+    let id=req.body.id
+    let role
+    let average=0
+    const total=[]
+    try{
+        console.log("role")
+        const data1=await helper.assignedtask(id)
+        console.log("data1")
+        role=data1[0].rolename
+        if(role==="user"){
+    const data= await helper.getaveragetaskreport(id)
+    let datalength=data.length
+    console.log(datalength)
+    let num1
 
+    for(let i=0;i<datalength;i++)
+    {
+        data[i].updatedAt.setHours(12,0,0,0)
+        data[i].createdAt.setHours(12,0,0,0)
+        total[i]=Math.abs(data[i].updatedAt-data[i].createdAt)
+
+       // total[i]=Math.floor(total[i])
+        total[i]=total[i]/ (1000 * 60 * 60 * 24)
+        average =average+total[i]
+    
+    }
+    average=average/datalength
+    console.log(average)
+    res.status(200).json({
+        msg:"average days taking to complete a task",
+        result:average
+    })
+        }else{
+            res.status(401).send("not authorize")
+        }
+ 
+    } catch(err){
+        res.status(500).send(err.message)
+    }
+ }
 }

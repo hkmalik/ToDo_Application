@@ -21,15 +21,7 @@ console.log('create tasks5');
         }
         )
         });
-           // tasks.create({ user_id, task_name, description, status })
-           //     .then(data => {
-           //         resolve(data);
-
-          //      }).catch(err => {
-           //         reject(err);
-           //     })
-       // })
-
+         
     },
     gettask: () => {
         return new Promise((resolve, reject) => {
@@ -119,11 +111,6 @@ console.log('create tasks5');
             tasks.sequelize.query(`SELECT * FROM tasks ORDER BY user_id ASC`,{
                 type:QueryTypes.SELECT
             })
-          //  tasks.findAll({
-            //    order: [
-              //      ['user_id', 'ASC']
-              //  ]
-           // })
             .then((data) => {
                 resolve(data);
             }).catch((err) => {
@@ -170,5 +157,32 @@ console.log('create tasks5');
             })
 
         })
+    },
+    searchTaskbyidformatdate:(email,id,format)=>{
+
+       return new Promise((resolve, reject) => {
+        tasks.sequelize.query(`SELECT  taskName,description,deadline From tasks JOIN users ON users.email=?WHERE assignedid=? AND deadline=?`,{
+            type:QueryTypes.SELECT,
+            replacements:[email,id,format]
+        }).then((results) =>
+         resolve(results)
+        ).catch(err => 
+            reject(err))
+        
+       })
+
+    },
+    gettaskbyassignedid:(id,findid)=>{
+        return new Promise(async(resolve, reject) => {
+            tasks.sequelize.query(`SELECT u.id,u.name,t.taskName,t.description,t.deadline,t.createdAt,t.updatedAt FROM tasks t 
+            JOIN users u ON u.id=t.assignedid WHERE t.user_id=? AND t.assignedid=? And t.status="completed"`,{
+                type:QueryTypes.SELECT,
+                replacements:[id,findid]
+        }).then((results) =>
+        resolve(results)
+        ).catch(err =>
+            reject(err))
+            
+          })
     }
 }

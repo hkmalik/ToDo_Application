@@ -1,18 +1,20 @@
 const db = require('../models');
 const { sign } = require('jsonwebtoken');
 const helper = require('../services/userhelper');
+const helper2=require('../services/taskhelper')
 const bcrypt = require('bcrypt');
 const nodemailer = require("nodemailer");
 const randomstring = require('randomstring');
 const user = require('../models/user');
-const{config}=require('./config')
+const { config } = require('./config')
 const { QueryTypes } = require('sequelize');
-const mailGen= require('mailgen');
-const{EMAIL,PASSWORD}= require('../env')// for gmail id
-const url=require('url');
-const { error } = require('console');
+const mailGen = require('mailgen');
+const { EMAIL, PASSWORD } = require('../env')// for gmail id
+const url = require('url');
+const { error, Console } = require('console');
 
-const  cron =require('node-cron');
+const cron = require('node-cron');
+const { format } = require('path');
 //const shell=require('shelljs')
 const users = db.models.Users;
 const tasks = db.models.tasks;
@@ -21,86 +23,87 @@ function emailvalid(email) {
     let emailFormat = /^[a-zA-Z0-9_.+-]+@[a-zA-Z]+\.[a-zA-Z]+$/;
     return email.match(emailFormat) ? true : false;
 }
-/*function isPasswordStrong(password)
+function isPasswordStrong(password)
 {
     let passwordFormat = /^(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?=.*[A-Z])(?=.*[a-z]).{8,16}$/
     if(password.match(passwordFormat))
     {
         return true;
     }////////////////////////////////////////THIS FUNCTIONS IS NOT TESTED YET TEST IT AFTER PERFORMING
-    \//////////////////////////////////////// THE OTHER TASK
+    //////////////////////////////////////// THE OTHER TASK
     else{
         console.error("Invalid password")
         return false;
     }
-}*/
+}
 
 const createUsers = async (req, res) => {
+    console.log("Creating users...")
     let { name, username, email, password, isActiveKey } = req.body;
- 
+
 
     try {
-        if (emailvalid(email)) {
+        console.log(password)
+        console.log("Creating users...1")
+        if (emailvalid(email) && isPasswordStrong(password)) {
             console.log("he1")
             let data = await helper.createuser(name, username, email, password, isActiveKey)
             return res.status(201).json(data)
         } else {
             // return res.status(422).send('Email is invalid');
             // throw new Error('Email is invalid')
-            return res.status(401).send('The Entered Email is Invalid')
+            return res.status(401).send('The Entered Email is Invalid or password')
         }
     }
     catch (err) {
         return res.status(500).send("invalid")
     }
 }
-const userupdate=async(req,res)=>{
+const userupdate = async (req, res) => {
 
-    try{
+    try {
         console.log("check entering the try ")
-        const data = await helper.updateuser(req.body,req.body.id)
+        const data = await helper.updateuser(req.body, req.body.id)
         console.log(data)
-         return res.status(200).send(data)
+        return res.status(200).send(data)
 
-        
+
     }
-    catch(error){
+    catch (error) {
 
         return res.status(500).send(error)
     }
 
 }
-const passwordupdate=async(req,res)=>{
-    try{
+const passwordupdate = async (req, res) => {
+    try {
         console.log("check entering the try ")
         const data = await helper.updateUserPassword(req.body.email)
-        let password= data[0].password
-        let newpassword=(req.body.newpassword)
+        let password = data[0].password
+        let newpassword = (req.body.newpassword)
         console.log(password)
         console.log(req.body.password)
         console.log("bycrpting")
-        if (await bcrypt.compare(req.body.password, password))
-        {
+        if (await bcrypt.compare(req.body.password, password)) {
             console.log("password updating1")
-            const data= await helper.updateUserPassword2(req.body.email,newpassword)
-           
+            const data = await helper.updateUserPassword2(req.body.email, newpassword)
+
             res.status(200).send(data)
         }
-        else
-        {
-            res.status(500).send("couldn't update the password",errors)
+        else {
+            res.status(500).send("couldn't update the password", errors)
         }
         res.status(200).send(data)
     }
-catch(error){
+    catch (error) {
 
-   res.status(401).send("invalid creditional")
+        res.status(401).send("invalid creditional")
     }
 }
 const login = async (req, res) => {
     try {
 
-        const data = await helper.login_user(req.body.email,req.body.role)
+        const data = await helper.login_user(req.body.email, req.body.role)
 
         let hiddenpassword = data[0].password
         //console.log(req.body.password)
@@ -144,133 +147,128 @@ const getUsers = async (req, res) => {
 
 }
 
-const resetpassword = async (req,res) => {
- console.log("entering the reset password")
-     let newtoken=req.query.token// takin query token from url 
-     let email=req.body.email
-     let password=req.body.password
+const resetpassword = async (req, res) => {
+    console.log("entering the reset password")
+    let newtoken = req.query.token// takin query token from url 
+    let email = req.body.email
+    let password = req.body.password
 
-     try{
+    try {
         console.log("Resetting password")
-        const data=await helper.checktoken(newtoken)
-        if(data.length>0)
-        {
+        const data = await helper.checktoken(newtoken)
+        if (data.length > 0) {
 
             console.log("updating the password...")
-            const data=await helper.updateUserPassword2(email,password)
-            if(data.length>0)
-            {
+            const data = await helper.updateUserPassword2(email, password)
+            if (data.length > 0) {
                 console.log("hello")
-                const data1=await helper.deletetoken(newtoken)
+                const data1 = await helper.deletetoken(newtoken)
                 res.status(200).send(data1)
-            }else{
-            res.status(500).send("error")
+            } else {
+                res.status(500).send("error")
             }
         }
-        else{
+        else {
             res.status(404).send("Not Found")
         }
-     }
-     catch(err) {
+    }
+    catch (err) {
         res.status(500).send(err)
-        
-     }
 
-   
+    }
+
+
 }
-const forgetPassword = async(req,res)=>{
-    let useremail=req.body.email // the email in database
+const forgetPassword = async (req, res) => {
+    let useremail = req.body.email // the email in database
     console.log(useremail)
-    let dummyemail=req.body.dummyemail// temp email from temp mail to use for temporarypupose
+    let dummyemail = req.body.dummyemail// temp email from temp mail to use for temporarypupose
     //let name=req.body.username
-    let url="http://localhost:3000/API/user/resetpassword"
-    try{
+    let url = "http://localhost:3000/API/user/resetpassword"
+    try {
         console.log("helo")
         console.log(dummyemail)
-        let data =await helper.searchemail(useremail)
-        if(data.length>0)
-        {
+        let data = await helper.searchemail(useremail)
+        if (data.length > 0) {
             console.log("helo3")
             const jsontoken = sign({ result: data }, "hk12", { expiresIn: "1h" });
             //console.log(jsontoken)
-            let data2 =await helper.inserttoken(useremail,jsontoken)
-           console.log("helo5")
-           console.log(data2.length)
-           if(data2.length>0)
-           {
-            console.log("working")
-            let config={
-                service:'gmail',
-                auth:{
-                    user:EMAIL,
-                    pass:PASSWORD
-        
-                }
-            }
-            console.log("working2")
-            let transporter=nodemailer.createTransport(config);
-            console.log("working3")
-            let mailGenerator= new mailGen({
-                theme:"default",
-                product:{
-                    name:"Timetodo",
-                    link:"http://mailgen.js/"
-        
-                }
-        
-            })
-            console.log("working4")
-            let response={
-                body:{
-                
-                    intro:"welcome to todolist",
-                    table:{
-                        data:[
-                            {
-                             link:`http//localhost:3000/API/users/restpassword`
-                            }
-                        ]
+            let data2 = await helper.inserttoken(useremail, jsontoken)
+            console.log("helo5")
+            console.log(data2.length)
+            if (data2.length > 0) {
+                console.log("working")
+                let config = {
+                    service: 'gmail',
+                    auth: {
+                        user: EMAIL,
+                        pass: PASSWORD
+
                     }
                 }
-                        
-            }
-            console.log("working5")
-            let mail =mailGenerator.generate(response)
-            console.log("working6")
-             let message={
-                from :EMAIL,
-                to:dummyemail,
-                subject:"place order",
-                html: '<p>Click <a href="http://localhost:3000/API/user/resetpassword?token='+ jsontoken+'">here</a> to reset your password</p>'
-            }
-             console.log("working7")
-            transporter.sendMail(message)
-            .then(()=>{
-        
-                return res.status(201).json({
-                    msg:"check your mail"
+                console.log("working2")
+                let transporter = nodemailer.createTransport(config);
+                console.log("working3")
+                let mailGenerator = new mailGen({
+                    theme: "default",
+                    product: {
+                        name: "Timetodo",
+                        link: "http://mailgen.js/"
+
+                    }
 
                 })
-            }).catch(err => {
-            
-                res.status(500).json({err})
-            })
-           }
-           else
-           {
-            console.log("token not generated")
-           }
-            
+                console.log("working4")
+                let response = {
+                    body: {
+
+                        intro: "welcome to todolist",
+                        table: {
+                            data: [
+                                {
+                                    link: `http//localhost:3000/API/users/restpassword`
+                                }
+                            ]
+                        }
+                    }
+
+                }
+                console.log("working5")
+                let mail = mailGenerator.generate(response)
+                console.log("working6")
+                let message = {
+                    from: EMAIL,
+                    to: dummyemail,
+                    subject: "place order",
+                    html: '<p>Click <a href="http://localhost:3000/API/user/resetpassword?token=' + jsontoken + '">here</a> to reset your password</p>'
+                }
+                console.log("working7")
+                transporter.sendMail(message)
+                    .then(() => {
+
+                        return res.status(201).json({
+                            msg: "check your mail"
+
+                        })
+                    }).catch(err => {
+
+                        res.status(500).json({ err })
+                    })
+            }
+            else {
+                console.log("token not generated")
+            }
+
         }
-        else{
+        else {
             console.log("data not available")
             res.status(200).send("enter a valid email address");
 
-            
+
         }
 
     }
-    catch(error){
+    catch (error) {
         res.status(500).send(error);
 
     }
@@ -315,9 +313,16 @@ const mailer=async(req,res)=>{
        // res.status(201).json("signup sucessfully..!")
 
 }*////working fine with ethereal
-/*
-  const mailer=async(req,res)=>{
-    useremail=req.body.useremail
+
+ async function mailer(email,id,formatdate){
+
+   // useremail=req.body.useremail
+  console.log("enter in the  mailer function")
+    let data2 = await helper2.searchTaskbyidformatdate(email,id,formatdate)
+    let taskname=data2[0].taskName
+    let description = data2[0].description
+    let deadline=data2[0].deadline
+    
     let config={
         service:'gmail',
         auth:{
@@ -341,13 +346,14 @@ const mailer=async(req,res)=>{
     let response={
         body:{
         
-            intro:"welcome to todolist",
+            intro:"DEADLINE One day remaining",
             table:{
                 data:[
                     {
-                    item:"nodemailer stack book",
-                    link:"http://google.com"
-                    }
+                    TASKNAME:taskname,
+                    DESCRIPTION:description,
+                    DEADLINE:deadline
+                   }
                 ]
             }
         }
@@ -357,75 +363,126 @@ const mailer=async(req,res)=>{
     let mail =mailGenerator.generate(response)
      let message={
         from :EMAIL,
-        to:useremail,
-        subject:"place order",
+        to:email,
+        subject:"REMINDER FOR THE TASK ",
         html:mail
      }
-
+     let  msg="check your email"
     transporter.sendMail(message)
-    .then(()=>{
-
-        return res.status(201).json({
-            msg:"you should receive an email"
-        })
-    }).catch(err => {
-    
-        res.status(500).json({err})
-    })
-
-
-
-
-
-
-}*/
- const deadlinereminder = async(req,res)=>{
-    let date=new Date();
-    let currentdate=date.toDateString()
-    console.log(currentdate)
+  return msg
+}
+const deadlinereminder = async (req, res) => { /// this is remider notification functionality
+    const deadlinedate = []
+    let id
+    const date1 = []
+    const difference1 = []
+    const difference = []
+    let formatdate
+    let msg
     console.log("REMINDER ENTERING THE DEADLINE NEARING")
-    
-    try{
+    let currentdate = new Date();
+    console.log(currentdate)
+    cron.schedule('42 * * * *', async () => {
+    try {
+        const newdata=[]
+        let date3 = []
         const data = await helper.checkdeadeline()
-        for(let i=0; i<data.length; i++)
-        {
-            console.log("hi")
-            const deadlinedate[i]=data[i].// working on the subject reagrding this matter 
+        for (let i = 0; i < data.length; i++) {
+            //console.log("hi")
+            //console.log(data[i])
+            if (data[i].deadline !== null) {
+                deadlinedate[i] = data[i]// working on the subject reagrding this matter 
+            }
         }
-        console.log(deadlinedate)
-        res.status(200).send(data)
+
+        console.log("deadlinedate")
+        let filterdeadlinedate = deadlinedate.filter((item) => item !== undefined)
+        console.log(filterdeadlinedate)
+
+        for (let i = 0; i < filterdeadlinedate.length; i++) {
+            let datalength = filterdeadlinedate.length
+            console.log("hello")
+            console.log(filterdeadlinedate[i].deadline)
+            date1[i] = new Date(filterdeadlinedate[i].deadline)
+            console.log(date1[i])
+            console.log("hello2")
+            difference1[i] = date1[i] - currentdate
+            difference[i] = difference1[i] / (1000 * 60 * 60 * 24)
+            date3[i] = date1[i]
+            console.log(difference[i])
+            console.log("entering the difference")
+            if (difference[i] <= 1 && difference[i] >= 0) {
+                console.log("checking the data")
+                console.log("date", date1[i])
+                //console.log(date1.getDate())
+                formatdate = formattingdate(date1[i], datalength)
+                ///checking the deadline date assigned id
+                /* console.log("entering the assigid")
+                console.log(date3[i])
+                let format formattingdate(date3[i], datalength)) */
+            }
+            let n=0
+            for (let i = 0; i < filterdeadlinedate.length; i++) {
+                if (filterdeadlinedate[i].deadline === formatdate) {
+                    console.log("assiging")
+                    id = filterdeadlinedate[i].assignedid
+                    newdata[i] = await reminder1(id, formatdate)
+                    let mail=newdata[i][n].email
+                    msg= await mailer(mail,id,formatdate)
+                   console.log(msg)
+                }
+                else {
+                    console.log("not found")
+                }
+
+            }
+            console.log("bye")
+        }
+        console.log("done")
+        //  console.log(newdata)
+        console.log('Every hour');
         
-    }catch(err){
+        res.status(200).send(msg)
+     
+
+    } catch (err) {
         res.status(500).send(err)
     }
-/*cron.schedule('* * * * * *',() => {
-    
-    
-    console.log('seconds',)
-});*/
-
-    /*console.log("entering the scheduler")
-    cron.schedule("******",()=>{
-        console.log("nod script working")
-        //res.status(200).send("starteed")
-    })*/
-   // res.status(200).send("starteed")
+    });
 }
+async function reminder1(id, format) {
+    console.log(format)
+    console.log("reminders ")
+    return await helper.checkdeadlinedate(id, format)
+}
+function formattingdate(date1, num) {
+    console.log("hek")
+    let format
+    let day = date1.getDate();
+    console.log(day)
+    let month = date1.getMonth() + 1;
+    let year = date1.getFullYear();
+    if (month < 10) {
+        format = year + "-" + 0 + month + "-" + +0 + day;
+        if (day < 10) {
+            format = year + "-" + 0 + month + "-" + +0 + day;
+        }
+        console.log(format)
+    }
+    else {
+        format = year + "-" + month + "-" + day;
 
+    }
 
-
-
-
-
-
-
-
+    return format
+}
+    
 
 
 
 module.exports =
 {
-    
+
     //mailer, // a simple function use for testing purpose.
     login,
     createUsers,

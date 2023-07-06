@@ -172,14 +172,26 @@ module.exports =
             }).catch(err => {
                 reject(err);
             });
-            
-            
-            
-            
-            
-            
+        
           })
+    },
+    getaveragetaskreport:(id)=>{
+        console.log('getaveragetaskreport')
+        return new Promise(async(resolve, reject) => {
+            console.log('getaveragetaskreport2')
+            task.sequelize.query(`SELECT t.createdAt,t.updatedAt FROM tasks t  WHERE t.assignedid=? AND t.user_id!= ? AND t.status="completed"`,{
+                type:QueryTypes.SELECT,
+                replacements:[id,id]
+            }).then(result=>{
+                resolve(result);
+            }).catch(err => {
+                reject(err)
+            })
+           
+        })
+
     }
+
 }
 
 
