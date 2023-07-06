@@ -205,11 +205,12 @@ module.exports = {
     })
     },
    
-    checkdeadeline:()=>{
+    checkdeadeline:(date)=>{
         
          return new Promise(async(resolve,reject)=>{
-            task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE activeflag=1",{
+            task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE deadline=? AND  activeflag=1",{
                 type:QueryTypes.SELECT,
+                replacements:[date]
             }).then(data => {
                 
              resolve(data)   

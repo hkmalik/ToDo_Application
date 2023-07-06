@@ -372,90 +372,52 @@ const mailer=async(req,res)=>{
   return msg
 }
 const deadlinereminder = async (req, res) => { /// this is remider notification functionality
-    const deadlinedate = []
     let id
-    const date1 = []
-    const difference1 = []
-    const difference = []
     let formatdate
     let msg
     console.log("REMINDER ENTERING THE DEADLINE NEARING")
-    let currentdate = new Date();
-    console.log(currentdate)
+   var  currentdate = new Date();
+   console.log(currentdate)
+    console.log(currentdate.setDate(currentdate.getDate()+1))
+    let date =formattingdate(currentdate)
+    console.log(date)
     cron.schedule('42 * * * *', async () => {
+        let n=0
     try {
         const newdata=[]
-        let date3 = []
-        const data = await helper.checkdeadeline()
-        for (let i = 0; i < data.length; i++) {
-            //console.log("hi")
-            //console.log(data[i])
-            if (data[i].deadline !== null) {
-                deadlinedate[i] = data[i]// working on the subject reagrding this matter 
-            }
-        }
+    
+        const data = await helper.checkdeadeline(date)
 
-        console.log("deadlinedate")
-        let filterdeadlinedate = deadlinedate.filter((item) => item !== undefined)
-        console.log(filterdeadlinedate)
-
-        for (let i = 0; i < filterdeadlinedate.length; i++) {
-            let datalength = filterdeadlinedate.length
-            console.log("hello")
-            console.log(filterdeadlinedate[i].deadline)
-            date1[i] = new Date(filterdeadlinedate[i].deadline)
-            console.log(date1[i])
-            console.log("hello2")
-            difference1[i] = date1[i] - currentdate
-            difference[i] = difference1[i] / (1000 * 60 * 60 * 24)
-            date3[i] = date1[i]
-            console.log(difference[i])
-            console.log("entering the difference")
-            if (difference[i] <= 1 && difference[i] >= 0) {
-                console.log("checking the data")
-                console.log("date", date1[i])
-                //console.log(date1.getDate())
-                formatdate = formattingdate(date1[i], datalength)
-                ///checking the deadline date assigned id
-                /* console.log("entering the assigid")
-                console.log(date3[i])
-                let format formattingdate(date3[i], datalength)) */
-            }
-            let n=0
-            for (let i = 0; i < filterdeadlinedate.length; i++) {
-                if (filterdeadlinedate[i].deadline === formatdate) {
+        console.log(data)
+        
+            for (let i = 0; i < data.length; i++) {
                     console.log("assiging")
-                    id = filterdeadlinedate[i].assignedid
+                    formatdate = data[i].deadline
+                    id = data[i].assignedid
                     newdata[i] = await reminder1(id, formatdate)
+                    console.log(newdata[i])
                     let mail=newdata[i][n].email
-                    msg= await mailer(mail,id,formatdate)
+                    n++
+                    console.log(mail)
+                   msg= await mailer(mail,id,formatdate)
                    console.log(msg)
-                }
-                else {
-                    console.log("not found")
-                }
+                } 
 
-            }
-            console.log("bye")
-        }
         console.log("done")
         //  console.log(newdata)
         console.log('Every hour');
-        
         res.status(200).send(msg)
-     
-
-    } catch (err) {
+   }  catch (err) {
         res.status(500).send(err)
     }
-    });
+    }); 
 }
 async function reminder1(id, format) {
     console.log(format)
     console.log("reminders ")
     return await helper.checkdeadlinedate(id, format)
 }
-function formattingdate(date1, num) {
+function formattingdate(date1) {
     console.log("hek")
     let format
     let day = date1.getDate();
