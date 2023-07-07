@@ -4,6 +4,9 @@ const router = require('./api/userRouter');
 const db = require('./models');
 const  cron =require('node-cron');
 
+
+//app.use(express.urlencoded({ extended: true }));
+
 app.use(express.json());
 app.use("/api/user", router);
 

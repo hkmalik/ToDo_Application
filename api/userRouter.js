@@ -1,13 +1,37 @@
+const multer= require("multer")
 
 const { createUsers, getUsers,  login, resetpassword, forgetPassword ,userupdate,passwordupdate,deadlinereminder}=require('../contollers/usersSequalize')
-const {createTasks, getTasks, getTaskByUserId, updateTask, deleteTask,getFilterByStatus, getTasksortedByName, getTaskSortedByUserId,updateTaskStatus }=require('../contollers/tasks')
+const {createTasks, getTasks, getTaskByUserId, updateTask, deleteTask,getFilterByStatus, getTasksortedByName, getTaskSortedByUserId,updateTaskStatus,uploadimage }=require('../contollers/tasks')
 const{assignedrole,assignedtask,gettaskdetails,getdeadlinedetails,gettaskstatusinfo,gettaskreports,averagetaskreport}=require('../contollers/role')
 const router = require("express").Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null,  uniqueSuffix + '-' +file.originalname )
+  }
+
+})
+////// attachments not completed image is upload fine but have to add s somemore functionality
+//and further improvements for the completion of the function
+
+const upload =multer({
+  storage:storage,
+  limits: {
+    fileSize:1024*1024*5
+  }
+  
+})
+
 const { checkToken } = require('../tokenValidation');
 console.log("router startings")
  
 router.post('/create', createUsers)
 router.get('/get', getUsers);
+router.post("/upload",upload.single("mytaskfiles"),uploadimage)  
 router.post('/tasks', /*checkToken,*/ createTasks)
 router.get('/gettask', /*checkToken,*/ getTasks);
 router.get('/id', /*checkToken,*/ getTaskByUserId)

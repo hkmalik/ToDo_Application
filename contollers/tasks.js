@@ -123,5 +123,11 @@ getTaskSortedByUserId : async (req, res) => {
 
 
 
+    },
+    uploadimage:async(req,res)=>{
+         console.log("uploading images")
+        console.log(req.file)
+        res.status(200).send(req.file);
     }
+
 }
