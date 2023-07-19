@@ -1,9 +1,9 @@
 const { QueryTypes } = require('sequelize');
 const db = require('../models');
 const { hashedpassword } = require('./passwordencrption');
-const database = require('../config/database');
+const database = require('../config/dbconfig');
 const users = db.models.Users;
-const task=db.models.tasks
+const task = db.models.tasks
 module.exports = {
     createuser: (name, username, email, password, isactive_key) => {
         console.log("he2")
@@ -49,13 +49,7 @@ module.exports = {
 
             })
         })
-        //users.findAll().
-        //    then(data=>{
-        //        resolve(data);
-        //    }).catch(err=>{
-        //        reject(err);
-        //    })
-        //});
+       
     },
     updateuser: (body, id) => {
 
@@ -92,14 +86,14 @@ module.exports = {
     },
     updateUserPassword2: (email, userpassword) => {
         console.log("update password 2")
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-              
+                    console.log("update password2 functions")
                 let passwordData = await hashedpassword(userpassword);
                 console.log(passwordData)
                 console.log("update password 2")
-               const data= await users.sequelize.query(
-                `UPDATE users SET password=? WHERE email=? `, {
+                const data = await users.sequelize.query(
+                    `UPDATE users SET password=? WHERE email=? `, {
                     type: QueryTypes.UPDATE,
                     replacements: [passwordData, email]
                 })
@@ -110,21 +104,16 @@ module.exports = {
             }
         })
     },
-    login_user: (useremail,role) => {
+    login_user: (useremail, role) => {
 
-            
+
         return new Promise((resolve, reject) => {
 
             users.sequelize.query('SELECT * FROM users WHERE email=?,role=?', {
                 type: QueryTypes.SELECT,
                 replacements: [useremail, role]
             })
-                /*             users.findAll({
-                                where: {
-                                    email: useremail,
-                                    password: password
-                                }
-                            }) */
+                
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
@@ -135,52 +124,52 @@ module.exports = {
 
         });
     },
-    searchemail:(email) => {
-         return new Promise(async(resolve,reject)=>{
+    searchemail: (email) => {
+        return new Promise(async (resolve, reject) => {
             console.log("helo2")
-            await users.sequelize.query( `SELECT * FROM users WHERE email=? `,{
+            await users.sequelize.query(`SELECT * FROM users WHERE email=? `, {
 
-                type:QueryTypes.SELECT,
-                replacements:[email]
+                type: QueryTypes.SELECT,
+                replacements: [email]
 
             }).then(data => {
-                 
-                 
-                    resolve(data);
-                }).catch(err => {
-                    console.log(err);
-                    reject(err);
-                })
-         })
+
+
+                resolve(data);
+            }).catch(err => {
+                console.log(err);
+                reject(err);
+            })
+        })
     },
-    inserttoken:(useremail,token)=>{
-        return new Promise(async(resolve,reject)=>{
+    inserttoken: (useremail, token) => {
+        return new Promise(async (resolve, reject) => {
             console.log("helo4")
             console.log(useremail)
-        users.sequelize.query("update users SET  token=?  WHERE email= ? ",{
-            type:QueryTypes.INSERT,
-            replacements:[token,useremail]
+            users.sequelize.query("update users SET  token=?  WHERE email= ? ", {
+                type: QueryTypes.INSERT,
+                replacements: [token, useremail]
 
-        }).then(data => {
-         resolve(data)   
-        }).catch(err => {
-         reject(err);   
+            }).then(data => {
+                resolve(data)
+            }).catch(err => {
+                reject(err);
+            })
+
         })
 
-    })
-
     },
-    checktoken:(token)=>{
+    checktoken: (token) => {
         console.log("Resetting password1")
         //console.log(token)
-        return new Promise(async(resolve,reject)=>{
+        return new Promise(async (resolve, reject) => {
             console.log("Resetting password2")
-            users.sequelize.query("SELECT *  FROM users WHERE token=?",{
-                type:QueryTypes.SELECT,
-                replacements:[token]
+            users.sequelize.query("SELECT *  FROM users WHERE token=?", {
+                type: QueryTypes.SELECT,
+                replacements: [token]
             }).then(data => {
-             resolve(data)   
-            }).catch(err=>{
+                resolve(data)
+            }).catch(err => {
 
                 reject(err);
             })
@@ -188,52 +177,52 @@ module.exports = {
         })
 
     },
-    deletetoken:(token)=>{
+    deletetoken: (token) => {
 
         console.log("deleting the token")
-        return new Promise(async(resolve,reject)=>{
-            await users.sequelize.query("UPDATE users SET token= 0 WHERE token=?",{
-                type:QueryTypes.UPDATE,
-                replacements:[token]
-            
+        return new Promise(async (resolve, reject) => {
+            await users.sequelize.query("UPDATE users SET token= 0 WHERE token=?", {
+                type: QueryTypes.UPDATE,
+                replacements: [token]
 
-        }).then(data => {
-         resolve(data)   
-        }).catch(err=>{
-            reject(err);   
-        })
-    })
-    },
-   
-    checkdeadeline:(date)=>{
-        
-         return new Promise(async(resolve,reject)=>{
-            task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE deadline=? AND  activeflag=1",{
-                type:QueryTypes.SELECT,
-                replacements:[date]
+
             }).then(data => {
-                
-             resolve(data)   
-            }).catch(err=>{
-              reject(err);      
-         })
-         })
+                resolve(data)
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    },
+
+    checkdeadeline: (date) => {
+
+        return new Promise(async (resolve, reject) => {
+            task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE deadline=? AND  activeflag=1", {
+                type: QueryTypes.SELECT,
+                replacements: [date]
+            }).then(data => {
+
+                resolve(data)
+            }).catch(err => {
+                reject(err);
+            })
+        })
 
     },
-    checkdeadlinedate:(id,date)=>{
-        console.log("hjhd")
+    checkdeadlinedate: (id, date) => {
+        ///console.log("hjhd")
         console.log(id)
         console.log(date)
-        return new Promise(async(resolve,reject)=>{
-            task.sequelize.query(`SELECT u.name,u.email,t.taskName,t.description,t.deadline FROM users u JOIN tasks t on u.id=t.assignedid WHERE t.assignedid =? AND t.deadline=?`,{
-                type:QueryTypes.SELECT,
-                replacements:[id ,date]
+        return new Promise(async (resolve, reject) => {
+            task.sequelize.query(`SELECT u.name,u.email,t.taskName,t.description,t.deadline FROM users u JOIN tasks t on u.id=t.assignedid WHERE t.assignedid =? AND t.deadline=?`, {
+                type: QueryTypes.SELECT,
+                replacements: [id, date]
 
-            } ).then(data => {
+            }).then(data => {
                 //console.log(data)
-             resolve(data)   
-            }).catch(err=>{
-             reject(err)   
+                resolve(data)
+            }).catch(err => {
+                reject(err)
             })
 
 

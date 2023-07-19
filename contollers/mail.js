@@ -2,7 +2,7 @@ const mailGen = require('mailgen');
 const { EMAIL, PASSWORD } = require('../env')// for gmail id
 const nodemailer = require("nodemailer");
 module.exports = {
-    mailer: async (req, res) => {
+    mailer: async (req, res) => { 
         useremail = req.body.useremail
         let config = {
             service: 'gmail',

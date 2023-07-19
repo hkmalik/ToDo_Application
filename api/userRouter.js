@@ -1,8 +1,8 @@
-const multer= require("multer")
+const multer = require("multer")
 
-const { createUsers, getUsers,  login, resetpassword, forgetPassword ,userupdate,passwordupdate,deadlinereminder}=require('../contollers/usersSequalize')
-const {createTasks, getTasks, getTaskByUserId, updateTask, deleteTask,getFilterByStatus, getTasksortedByName, getTaskSortedByUserId,updateTaskStatus,uploadimage }=require('../contollers/tasks')
-const{assignedrole,assignedtask,gettaskdetails,getdeadlinedetails,gettaskstatusinfo,gettaskreports,averagetaskreport}=require('../contollers/role')
+const { createUsers, getUsers, login, resetpassword, forgetPassword, userupdate, passwordupdate, deadlinereminder } = require('../contollers/usersSequalize')
+const { createTasks, getTasks, getTaskByUserId, updateTask, deleteTask, getFilterByStatus, getTasksortedByName, getTaskSortedByUserId, updateTaskStatus, uploadimage } = require('../contollers/tasks')
+const { assignedrole, assignedtask, gettaskdetails, getdeadlinedetails, gettaskstatusinfo, gettaskreports, averagetaskreport } = require('../contollers/role')
 const router = require("express").Router();
 
 const storage = multer.diskStorage({
@@ -11,27 +11,25 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null,  uniqueSuffix + '-' +file.originalname )
+    cb(null, uniqueSuffix + '-' + file.originalname)
   }
 
 })
-////// attachments not completed image is upload fine but have to add s somemore functionality
-//and further improvements for the completion of the function
 
-const upload =multer({
-  storage:storage,
+const upload = multer({
+  storage: storage,
   limits: {
-    fileSize:1024*1024*5
+    fileSize: 1024 * 1024 * 5
   }
-  
+
 })
 
-const { checkToken } = require('../tokenValidation');
+const { checkToken } = require('../helper/tokenValidation');
 console.log("router startings")
- 
+
 router.post('/create', createUsers)
 router.get('/get', getUsers);
-router.post("/upload",upload.single("mytaskfiles"),uploadimage)  
+router.post("/upload", upload.single("mytaskfiles"), uploadimage)
 router.post('/tasks', /*checkToken,*/ createTasks)
 router.get('/gettask', /*checkToken,*/ getTasks);
 router.get('/id', /*checkToken,*/ getTaskByUserId)
@@ -51,8 +49,8 @@ router.get('/taskstatus', /*checkToken,*/gettaskstatusinfo)
 router.get('/taskreport', /*checkToken,*/gettaskreports)
 router.get('/averageratio', /*checkToken,*/averagetaskreport)
 //router.post('/mail', /*checkToken,*/mailer)// for testing purpose only
-router.post('/forgetpassword',forgetPassword)
-router.get('/resetpassword',resetpassword)
+router.post('/forgetpassword', forgetPassword)
+router.get('/resetpassword', resetpassword)
 router.get('/reminder',/*checkToken,*/deadlinereminder)
 
 

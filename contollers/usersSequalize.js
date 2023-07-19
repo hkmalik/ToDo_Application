@@ -11,11 +11,11 @@ const { QueryTypes } = require('sequelize');
 const mailGen = require('mailgen');
 const { EMAIL, PASSWORD } = require('../env')// for gmail id
 const url = require('url');
-const { error, Console } = require('console');
+
 
 const cron = require('node-cron');
 const { format } = require('path');
-//const shell=require('shelljs')
+
 const users = db.models.Users;
 const tasks = db.models.tasks;
 //1.create users
@@ -179,7 +179,9 @@ const resetpassword = async (req, res) => {
 
 
 }
-const forgetPassword = async (req, res) => {
+const forgetPassword = async (req, res) => {   ///dummy email is craeted in the replacement 
+    //for understanding purpose only we can also remove it....
+    console.log("entering the forget password")
     let useremail = req.body.email // the email in database
     console.log(useremail)
     let dummyemail = req.body.dummyemail// temp email from temp mail to use for temporarypupose
@@ -239,7 +241,7 @@ const forgetPassword = async (req, res) => {
                 let message = {
                     from: EMAIL,
                     to: dummyemail,
-                    subject: "place order",
+                    subject: "Reset Your Password... ",
                     html: '<p>Click <a href="http://localhost:3000/API/user/resetpassword?token=' + jsontoken + '">here</a> to reset your password</p>'
                 }
                 console.log("working7")
@@ -274,45 +276,6 @@ const forgetPassword = async (req, res) => {
     }
 
 }
-/*
-const mailer=async(req,res)=>{
-        console.log("hellomr")
-        let testAccount =await nodemailer.createTestAccount();
-        console.log("hellomr2")
-
-        let transporter=nodemailer.createTransport({
-
-            host:"smtp.ethereal.email",
-            port:587,
-            secure:false,
-            auth:{
-                user:testAccount.user,///USERNAME
-                pass:testAccount.pass,///PASSWORD
-            },
-        
-        });
-        let message ={
-            from: '"Fred Foo 👻" <foo@example.com>', // sender address
-            to: "bar@example.com, baz@example.com", // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "sucessfully register with us", // plain text body
-            html: "<b>Hello world?</b>", // html body 
-        }
-        transporter.sendMail(message)
-        .then((info)=>{
-            
-            return res.status(201).
-            json({msg:"you should an email",
-            info:info.messageId,
-            preview:nodemailer.getTestMessageUrl(info)
-            })          
-        }).catch(err => {
-            
-        return   res.status(500).json({err})
-        })
-       // res.status(201).json("signup sucessfully..!")
-
-}*////working fine with ethereal
 
  async function mailer(email,id,formatdate){
 

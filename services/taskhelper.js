@@ -184,5 +184,23 @@ console.log('create tasks5');
             reject(err))
             
           })
+    },/// adding info regarding the image 
+    addimageinfo:(id ,number)=>{
+        console.log("addimages")
+         return new Promise(async(resolve, reject)=>{
+            console.log("entering..")
+            tasks.sequelize.query(`UPDATE tasks SET attachmentid = ? WHERE id = ?;`,
+                {
+                  type: QueryTypes.UPDATE,
+                  replacements: [number, id]             
+              
+            }).then((data)=>{
+              
+                resolve(data);
+            }).catch((err)=>{
+             reject(err)   
+            })
+            
+    })
+        }
     }
-}
