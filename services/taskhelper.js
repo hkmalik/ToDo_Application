@@ -2,15 +2,15 @@ const { QueryTypes } = require('sequelize');
 const db = require('../models');
 const tasks = db.models.tasks;
 module.exports = {
-    createtask: (user_id, task_name, description, status,assign,deadline) => {
+    createtask: (user_id, task_name, description, status,assign,deadline,activeflag) => {
                  
-console.log('create tasks3');
+console.log(user_id, task_name, description, status,assign,deadline,activeflag);
         return new Promise((resolve, reject) => {
             console.log(assign)
             console.log('create tasks4');
-            tasks.sequelize.query('INSERT INTO tasks (user_id,taskName, description,status,assignedid,deadline) VALUES (?,?,?,?,?,?)',{
+            tasks.sequelize.query('INSERT INTO tasks (user_id,taskName, description,status,assignedid,deadline,activeflag) VALUES (?,?,?,?,?,?,?)',{
                 type:QueryTypes.INSERT,
-                replacements:[user_id,task_name,description,status,assign,deadline]
+                replacements:[user_id,task_name,description,status,assign,deadline,activeflag]
              }).then((result) => {
                 
                          
@@ -39,12 +39,30 @@ console.log('create tasks5');
 
     },
     gettask_byuserid: (id) => {
-
+        console.log(id)
         return new Promise((resolve, reject) => {
 
-            tasks.sequelize.query("SELECT * FROM tasks  where user_id =:id OR assignedid=:id",{
+            tasks.sequelize.query("SELECT * FROM tasks  where user_id =:id AND assignedid=:id",{
                 type:QueryTypes.SELECT,
                 replacements:{id:id}
+            })
+            .then(data => {
+
+                resolve(data);
+
+            })
+                .catch(err => {
+                    reject(err);
+                })
+        })
+    },
+    gettask_byid: (id) => {
+        console.log(id)
+        return new Promise((resolve, reject) => {
+
+            tasks.sequelize.query(`SELECT * FROM tasks  where id =?`,{
+                type:QueryTypes.SELECT,
+                replacements:[id]
             })
             .then(data => {
 
@@ -192,7 +210,7 @@ console.log('create tasks5');
             tasks.sequelize.query(`UPDATE tasks SET attachmentid = ? WHERE id = ?;`,
                 {
                   type: QueryTypes.UPDATE,
-                  replacements: [number, id]             
+                  replacements: [number, id]           
               
             }).then((data)=>{
               

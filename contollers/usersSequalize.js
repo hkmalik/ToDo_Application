@@ -39,8 +39,8 @@ function isPasswordStrong(password)
 
 const createUsers = async (req, res) => {
     console.log("Creating users...")
-    let { name, username, email, password, isActiveKey } = req.body;
-
+    let { name, username, email, password, } = req.body;
+    let  isActiveKey=1
 
     try {
         console.log(password)
@@ -103,7 +103,16 @@ const passwordupdate = async (req, res) => {
 const login = async (req, res) => {
     try {
 
-        const data = await helper.login_user(req.body.email, req.body.role)
+        const data = await helper.login_user(req.body.email)
+        const data2=JSON.stringify(data)
+        console.log(data2)
+        if(data.length < 1)
+        {
+            res.status(401).json({
+                result:"user not found"
+            })
+        }
+        else{
 
         let hiddenpassword = data[0].password
         //console.log(req.body.password)
@@ -115,7 +124,7 @@ const login = async (req, res) => {
                 console.log("login4")
 
                 const jsontoken = sign({ result: data }, "hk12", { expiresIn: "1h" });
-                res.status(201).json({ token: jsontoken });
+                res.status(201).send(data);
             }
             else {
                 console.log("Invalid email and password")
@@ -126,6 +135,7 @@ const login = async (req, res) => {
 
             res.status(401).send("password incorrect")
         }
+    }
     }
     catch (err) {
         res.status(401).send("invalid creditional")

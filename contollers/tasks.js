@@ -4,7 +4,8 @@ const helper = require('../services/taskhelper');
 const { compareSync } = require('bcrypt');
 const multer = require("multer")
 const fs = require('fs');
-const path = require("path")
+const path = require("path");
+const { json } = require('sequelize');
 const tasks = db.models.tasks;
 function randomNumber() {
     let size = 100000
@@ -55,14 +56,14 @@ module.exports = {
     createTasks: async (req, res) => {
 
         console.log('create tasks');
-        let user_id = req.body.user_id
+        let user_id = req.body.ID
         let task_name = req.body.taskName
         let description = req.body.description
+        let status = req.body.status
         let assign = req.body.assignedid
         let deadline = req.body.deadline
-        let activeflag = req.body.active.flag
-        let status = req.body.status
-
+        let activeflag = req.body.activeflag
+      
         try {
 
             console.log('create tasks1');
@@ -87,9 +88,23 @@ module.exports = {
     },
     getTaskByUserId: async (req, res) => {
         try {
-
-            const data = await helper.gettask_byuserid(req.body.user_id)
+                console.log("start get task")
+            const data = await helper.gettask_byuserid(req.params.ID)
+            console.log(data)
             res.status(200).send(data)
+
+        }
+        catch (err) {
+            res.status(500).send(err)
+        }
+
+    },
+    getTaskById: async (req, res) => {
+        try {
+                console.log("start get task")
+            const data = await helper.gettask_byid(req.params.ID)
+      
+            res.status(200).json(data)
 
         }
         catch (err) {
@@ -103,9 +118,8 @@ module.exports = {
         // console.log("heli")
         try {
             console.log("try")
-            const data = await helper.updatetask(req.body, req.body.id);
+            const data = await helper.updatetask(req.params.id);
             res.status(200).send(data)
-
 
         } catch (err) {
             res.status(500).send(err)
@@ -117,8 +131,11 @@ module.exports = {
         try {
 
             console.log("delete")
-            const data = await helper.deletetask(req.body.id);
-            res.sendStatus(200).send(data)
+            const data = await helper.deletetask(req.params.ID);
+        
+            res.status(200).json({
+                result:"success fully data deleted"
+            })
         }
         catch (err) {
             res.status(500).send(err)

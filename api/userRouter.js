@@ -1,7 +1,7 @@
 const multer = require("multer")
 
 const { createUsers, getUsers, login, resetpassword, forgetPassword, userupdate, passwordupdate, deadlinereminder } = require('../contollers/usersSequalize')
-const { createTasks, getTasks, getTaskByUserId, updateTask, deleteTask, getFilterByStatus, getTasksortedByName, getTaskSortedByUserId, updateTaskStatus, uploadimage } = require('../contollers/tasks')
+const { createTasks, getTasks,getTaskById, getTaskByUserId, updateTask, deleteTask, getFilterByStatus, getTasksortedByName, getTaskSortedByUserId, updateTaskStatus, uploadimage } = require('../contollers/tasks')
 const { assignedrole, assignedtask, gettaskdetails, getdeadlinedetails, gettaskstatusinfo, gettaskreports, averagetaskreport } = require('../contollers/role')
 const router = require("express").Router();
 
@@ -32,9 +32,10 @@ router.get('/get', getUsers);
 router.post("/upload", upload.single("mytaskfiles"), uploadimage)
 router.post('/tasks', /*checkToken,*/ createTasks)
 router.get('/gettask', /*checkToken,*/ getTasks);
-router.get('/id', /*checkToken,*/ getTaskByUserId)
+router.get('/task/:ID',/*checkToken,*/getTaskById)
+router.get('/id/:ID', /*checkToken,*/ getTaskByUserId)
 router.patch('/update', /*checkToken,*/ updateTask)
-router.delete('/delete', /*checkToken,*/ deleteTask)
+router.delete('/delete/:ID', /*checkToken,*/ deleteTask)
 router.get('/status', /*checkToken,*/ getFilterByStatus)
 router.get('/name', /*checkToken, */getTasksortedByName)
 router.get('/sortid', /*checkToken, */getTaskSortedByUserId)

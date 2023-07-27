@@ -12,8 +12,8 @@ module.exports =
 {
     assignedrole: async (req, res) => {
         let roleId = req.body.roleId;
-        let name = req.body.rolename;
-
+        let name = req.body.role;
+        
         try {
             // console.log(body)
 

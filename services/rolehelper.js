@@ -13,7 +13,7 @@ module.exports =
         return new Promise(async (resolve, reject) => {
             console.log("he3")
             try {
-
+                console.log(rolename,roleId)
                 console.log("he5")
 
                 const data = await admin.sequelize.query(
@@ -89,15 +89,7 @@ module.exports =
             }
             )
         });
-        // tasks.create({ user_id, task_name, description, status })
-        //     .then(data => {
-        //         resolve(data);
-
-        //      }).catch(err => {
-        //         reject(err);
-        //     })
-        // })
-
+      
     },
     getdetailassigntask: (id) => {
         return new Promise(async (resolve, reject) => {

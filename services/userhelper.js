@@ -13,7 +13,7 @@ module.exports = {
                 console.log("he4")
                 let passwordData = await hashedpassword(password);
                 console.log("password in user", passwordData);
-                // console.log("how", name, email, password, isactive_key);
+                 console.log("how", name,username, email, password, isactive_key);
                 console.log("he5")
 
                 const data = await users.sequelize.query(
@@ -104,16 +104,15 @@ module.exports = {
             }
         })
     },
-    login_user: (useremail, role) => {
+    login_user: (useremail) => {
 
 
         return new Promise((resolve, reject) => {
 
-            users.sequelize.query('SELECT * FROM users WHERE email=?,role=?', {
+            users.sequelize.query('SELECT * FROM users WHERE email=?', {
                 type: QueryTypes.SELECT,
-                replacements: [useremail, role]
-            })
-                
+                replacements: [useremail]
+            }) 
                 .then(data => {
                     resolve(data);
                 }).catch(err => {
