@@ -47,8 +47,14 @@ const createUsers = async (req, res) => {
         console.log("Creating users...1")
         if (emailvalid(email) && isPasswordStrong(password)) {
             console.log("he1")
+            
             let data = await helper.createuser(name, username, email, password, isActiveKey)
-            return res.status(201).json(data)
+            const jsontoken = sign({ result: data }, "hk12", { expiresIn: "4h" });
+           
+           return  res.status(201).json({
+                data:data,
+                result:jsontoken});
+           
         } else {
             // return res.status(422).send('Email is invalid');
             // throw new Error('Email is invalid')
@@ -79,21 +85,23 @@ const passwordupdate = async (req, res) => {
     try {
         console.log("check entering the try ")
         const data = await helper.updateUserPassword(req.body.email)
-        let password = data[0].password
         let newpassword = (req.body.newpassword)
-        console.log(password)
+        console.log("from Data base ",data[0].password)
+      
         console.log(req.body.password)
         console.log("bycrpting")
-        if (await bcrypt.compare(req.body.password, password)) {
+        if (await bcrypt.compare(req.body.password,data[0].password)) {
             console.log("password updating1")
             const data = await helper.updateUserPassword2(req.body.email, newpassword)
-
-            res.status(200).send(data)
-        }
+        res.status(200).json({
+            success:1,
+            result:"password Updated",
+        })
+    }
         else {
             res.status(500).send("couldn't update the password", errors)
         }
-        res.status(200).send(data)
+       
     }
     catch (error) {
 
@@ -123,8 +131,11 @@ const login = async (req, res) => {
             if (data.length > 0) {
                 console.log("login4")
 
-                const jsontoken = sign({ result: data }, "hk12", { expiresIn: "1h" });
-                res.status(201).send(data);
+                const jsontoken = sign({ result: data }, "hk12", { expiresIn: "4h" });
+                const data2 = await helper.updatetoken(jsontoken)
+                res.status(201).json({
+                    data:data,
+                    result:jsontoken});
             }
             else {
                 console.log("Invalid email and password")
@@ -156,16 +167,31 @@ const getUsers = async (req, res) => {
     }
 
 }
+const gettoken=async(req,res)=>{
+    try{ 
+        let email=req.params.email
+        console.log("Getting users...")
+        const data = await helper.tokenget(email)
+        console.log("hi")
+        res.status(200).json(data);
 
+    }catch(err)
+    {
+        res.status(500).send(err)
+    }
+}
 const resetpassword = async (req, res) => {
     console.log("entering the reset password")
-    let newtoken = req.query.token// takin query token from url 
+    let newtoken = req.body.token 
     let email = req.body.email
     let password = req.body.password
-
+    console.log(newtoken)
+    console.log(email)
+    console.log(password)
     try {
         console.log("Resetting password")
         const data = await helper.checktoken(newtoken)
+        console.log(data)
         if (data.length > 0) {
 
             console.log("updating the password...")
@@ -173,7 +199,11 @@ const resetpassword = async (req, res) => {
             if (data.length > 0) {
                 console.log("hello")
                 const data1 = await helper.deletetoken(newtoken)
-                res.status(200).send(data1)
+                res.status(200).json({
+                    success:1,
+                    message:"password Updated",
+                    result:data1
+                })
             } else {
                 res.status(500).send("error")
             }
@@ -250,14 +280,15 @@ const forgetPassword = async (req, res) => {   ///dummy email is craeted in the 
                 console.log("working6")
                 let message = {
                     from: EMAIL,
-                    to: dummyemail,
+                    to: useremail,
                     subject: "Reset Your Password... ",
-                    html: '<p>Click <a href="http://localhost:3000/API/user/resetpassword?token=' + jsontoken + '">here</a> to reset your password</p>'
+                    html: '<p>Click <a href="http://localhost:3000/resetpassword">here</a> to reset your password</p>'
                 }
                 console.log("working7")
+                console.log(message)
                 transporter.sendMail(message)
                     .then(() => {
-
+                        console.log("hi")
                         return res.status(201).json({
                             msg: "check your mail"
 
@@ -417,7 +448,7 @@ function formattingdate(date1) {
 
 module.exports =
 {
-
+    gettoken,
     //mailer, // a simple function use for testing purpose.
     login,
     createUsers,

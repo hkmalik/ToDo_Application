@@ -88,7 +88,7 @@ module.exports = {
     },
     getTaskByUserId: async (req, res) => {
         try {
-                console.log("start get task")
+                console.log("start get task1")
             const data = await helper.gettask_byuserid(req.params.ID)
             console.log(data)
             res.status(200).send(data)
@@ -101,7 +101,7 @@ module.exports = {
     },
     getTaskById: async (req, res) => {
         try {
-                console.log("start get task")
+                console.log("start get task2")
             const data = await helper.gettask_byid(req.params.ID)
       
             res.status(200).json(data)
@@ -114,11 +114,11 @@ module.exports = {
     },
     updateTask: async (req, res) => {
 
-        //console.log(id)
+        console.log(req.params.ID)
         // console.log("heli")
         try {
             console.log("try")
-            const data = await helper.updatetask(req.params.id);
+            const data = await helper.updatetask(req.body,req.params.ID);
             res.status(200).send(data)
 
         } catch (err) {
@@ -146,7 +146,7 @@ module.exports = {
 
         try {
 
-            let data = await helper.getTaskByStatus(req.body.status)
+            let data = await helper.getTaskByStatus(req.params.status)
 
             res.status(200).send(data);
 
@@ -189,7 +189,7 @@ module.exports = {
     },
 
     uploadimage: async (req, res) => {
-
+     console.log("uploading")
         let newPathToFile
         let fname = req.file.filename
         let number = randomNumber()
@@ -223,7 +223,7 @@ module.exports = {
                 console.log("file has been renamed!")
             }
         })
-        try {
+      try {
             console.log("inuploadimagefunction")
             const data = await helper.addimageinfo(id, newfilename)
             res.status(200).send(data)

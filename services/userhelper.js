@@ -2,6 +2,7 @@ const { QueryTypes } = require('sequelize');
 const db = require('../models');
 const { hashedpassword } = require('./passwordencrption');
 const database = require('../config/dbconfig');
+const { resolve } = require('url');
 const users = db.models.Users;
 const task = db.models.tasks
 module.exports = {
@@ -24,11 +25,11 @@ module.exports = {
                     }
                 )
                 console.log("he6.1")
-                data.name = name;
+                /* data.name = name;
                 data.username = username;
                 data.password = passwordData;
                 data.isactive_key = isactive_key;
-                console.log(data);
+                console.log(data); */
                 console.log("he7")
                 resolve(data);
             } catch (error) {
@@ -72,7 +73,7 @@ module.exports = {
         console.log("update password")
         return new Promise((resolve, reject) => {
             console.log("update password 2")
-            users.sequelize.query('SELECT * FROM users WHERE email=:email', {
+            users.sequelize.query('SELECT password FROM users WHERE email=:email', {
                 type: QueryTypes.SELECT,
                 replacements: { email: useremail }
             }).
@@ -104,6 +105,22 @@ module.exports = {
             }
         })
     },
+    updatetoken:(token)=>{
+
+        return new Promise((resolve, reject)=>
+        {
+            users.sequelize.query('UPDATE users SET token=?',{
+                type:QueryTypes.UPDATE,
+                replacements:[token]
+
+            }).then(data =>{
+                resolve(data)
+            }).catch(err=>{
+                reject(err)
+            })
+        })
+
+    },
     login_user: (useremail) => {
 
 
@@ -126,7 +143,7 @@ module.exports = {
     searchemail: (email) => {
         return new Promise(async (resolve, reject) => {
             console.log("helo2")
-            await users.sequelize.query(`SELECT * FROM users WHERE email=? `, {
+           await users.sequelize.query(`SELECT * FROM users WHERE email=? `, {
 
                 type: QueryTypes.SELECT,
                 replacements: [email]
@@ -163,7 +180,7 @@ module.exports = {
         //console.log(token)
         return new Promise(async (resolve, reject) => {
             console.log("Resetting password2")
-            users.sequelize.query("SELECT *  FROM users WHERE token=?", {
+            const data = await users.sequelize.query("SELECT *  FROM users WHERE token=?", {
                 type: QueryTypes.SELECT,
                 replacements: [token]
             }).then(data => {
@@ -199,6 +216,21 @@ module.exports = {
             task.sequelize.query("SELECT deadline,assignedid FROM tasks WHERE deadline=? AND  activeflag=1", {
                 type: QueryTypes.SELECT,
                 replacements: [date]
+            }).then(data => {
+
+                resolve(data)
+            }).catch(err => {
+                reject(err);
+            })
+        })
+
+    },
+    tokenget:(email)=>{
+        return new Promise(async (resolve, reject) => {
+            task.sequelize.query('SELECT token from users WHERE email=?', {
+                type: QueryTypes.SELECT,
+                replacements: [email]
+
             }).then(data => {
 
                 resolve(data)

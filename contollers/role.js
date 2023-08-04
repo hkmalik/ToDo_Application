@@ -69,8 +69,8 @@ module.exports =
         }
     },
     gettaskreports: async (req, res) => {
-        let userid = req.body.user_id
-        let findid = req.body.id
+        let userid = req.params.user_id
+        let findid = req.params.id
         console.log(userid)
         let role
         let role2
@@ -96,10 +96,10 @@ module.exports =
                         console.log(num1[i], "days have passed")
 
                     }
+                    console.log(data)
                     res.status(200).json({
-                        info: data,
-                        msg: "days have passed",
-                        result: num1,
+                       data,
+                         num1
                     })
                 } else {
                     res.status(500).send("we can't check tasks of other admins")
@@ -114,8 +114,8 @@ module.exports =
     },
     gettaskdetails: async (req, res) => {
 
-        let userid = req.body.id// change if it is not right
-
+        let userid = req.params.ID// change if it is not right
+        console.log("get ",userid)
         try {
             const data2 = await helper.verifyassign(userid)
             let role2 = data2[0].rolename
@@ -150,11 +150,12 @@ module.exports =
         }
 
     },
-    //getting the info of the status regarding task
+    //getting the info of the status regarding task and passing the id 
     gettaskstatusinfo: async (req, res) => {
 
-        let id = req.body.id
-        let status = req.body.status
+        let status = req.params.status// check the status\
+        
+        let id = req.params.assignid//assigned Id of the task
         console.log(status)
         try {
             console.log("status")

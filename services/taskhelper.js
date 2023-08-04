@@ -75,13 +75,13 @@ console.log('create tasks5');
         })
     },
     updatetask: (body, id) => {
-       // console.log(body.task_name)
-       // console.log("updatetask")
+        console.log(body)
+        console.log("updatetask")
         return new Promise((resolve, reject) => {
-         //   console.log("updatetask2")
-         tasks.sequelize.query(`UPDATE tasks SET task_name =?,description =?,status =? where id=${id}`,{
+         console.log("updatetask2")
+         tasks.sequelize.query(`UPDATE tasks SET taskName =?,description =?,status =? where id=?`,{
             type:QueryTypes.UPDATE,
-            replacements:[body.task_name,body.description,body.status],
+            replacements:[body.taskName,body.description,body.status,id],
          }).then(data => {
                 console.log(data)
                 resolve(data);
@@ -138,7 +138,7 @@ console.log('create tasks5');
     },
       getTaskByStatus: (status) => {
         return new Promise((resolve, reject) => {
-
+                
                 tasks.sequelize.query( `SELECT * FROM tasks WHERE status=:status`,{
                     type:QueryTypes.SELECT,
                     replacements:{status:status}

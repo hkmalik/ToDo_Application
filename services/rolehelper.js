@@ -94,7 +94,7 @@ module.exports =
     getdetailassigntask: (id) => {
         return new Promise(async (resolve, reject) => {
             console.log('getdetailassigntask')
-            await user.sequelize.query(`SELECT  name, taskName, description,status,deadline FROM tasks Join USERS ON tasks.user_id=users.id WHERE users.id!=tasks.assignedid `, {
+            await user.sequelize.query(`SELECT name,taskName, description, status,deadline FROM tasks join users on tasks.assignedid=users.id WHERE assignedid!=${id} AND user_id=${id} `, {
                 type: QueryTypes.SELECT
 
 
